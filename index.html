@@ -1,1 +1,948 @@
-<p>Oi</p>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Builder de Descrição de Produto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --pink:#E8286E;--pink-h:#C91F5A;--pink-light:#FFE8F1;--pink-mid:#F5729A;
+  --dark:#180910;--gray:#6B5B63;--border:#EDD6E2;
+  --bg:#FBF2F6;--white:#fff;
+  --font-d:'Playfair Display',serif;--font-b:'Rubik',sans-serif;
+  --r:12px;--panel-l:240px;--panel-r:284px;
+}
+
+html,body{height:100%;overflow:hidden;font-family:var(--font-b);color:var(--dark);background:var(--bg)}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-columns:var(--panel-l) 1fr var(--panel-r);height:100vh;overflow:hidden}
+
+/* ── LEFT ── */
+.left{background:var(--dark);display:flex;flex-direction:column;padding:26px 16px;gap:18px;overflow-y:auto}
+
+.brand{display:flex;align-items:flex-start;gap:8px}
+.brand-dot{width:8px;height:8px;background:var(--pink);border-radius:50%;margin-top:5px;flex-shrink:0;box-shadow:0 0 10px var(--pink-mid)}
+.brand h1{font-family:var(--font-d);font-size:1.1rem;font-weight:600;color:#fff;line-height:1.25}
+.brand h1 em{color:var(--pink-mid);font-style:italic}
+
+.panel-label{font-size:.6rem;font-weight:600;color:#6B4A58;text-transform:uppercase;letter-spacing:.09em}
+
+.add-btns{display:flex;flex-direction:column;gap:7px}
+.btn-add{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);
+  border-radius:var(--r);color:#ddc8d2;
+  font-family:var(--font-b);font-size:.78rem;font-weight:500;
+  padding:9px 13px;cursor:pointer;text-align:left;
+  transition:background .2s,border-color .2s,transform .15s;
+}
+.btn-add:hover{background:rgba(232,40,110,.16);border-color:var(--pink-mid);transform:translateX(2px);color:#fff}
+.btn-add .ico{color:var(--pink-mid);font-size:.6rem;flex-shrink:0}
+
+.left-foot{margin-top:auto;display:flex;flex-direction:column;gap:7px}
+.btn-gen{
+  background:var(--pink);color:#fff;border:none;border-radius:var(--r);
+  padding:11px;font-family:var(--font-b);font-size:.8rem;font-weight:600;
+  cursor:pointer;transition:background .2s,transform .15s;
+  box-shadow:0 4px 18px rgba(232,40,110,.35);
+}
+.btn-gen:hover{background:var(--pink-h);transform:translateY(-1px)}
+.btn-clr{
+  background:transparent;border:1.5px solid rgba(255,255,255,.1);
+  border-radius:var(--r);color:#7A5566;
+  font-family:var(--font-b);font-size:.72rem;padding:8px;
+  cursor:pointer;transition:border-color .2s,color .2s;
+}
+.btn-clr:hover{border-color:var(--pink);color:var(--pink-mid)}
+
+.sec-list{display:flex;flex-direction:column;gap:5px}
+.sec-chip{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:7px 9px;cursor:pointer;
+  font-size:.75rem;color:#b89aaa;transition:background .15s,border-color .15s;
+}
+.sec-chip:hover,.sec-chip.active{background:rgba(232,40,110,.14);border-color:var(--pink-mid);color:#fff}
+.sec-chip-type{font-size:.58rem;font-weight:600;color:var(--pink-mid);text-transform:uppercase;letter-spacing:.06em}
+.sec-chip-actions{display:flex;gap:3px}
+.sec-chip-actions button{background:none;border:none;color:#6B4A58;cursor:pointer;font-size:.72rem;padding:2px 4px;border-radius:4px;transition:color .15s}
+.sec-chip-actions button:hover{color:var(--pink-mid)}
+
+/* ── CENTER ── */
+.center{display:flex;flex-direction:column;overflow:hidden;background:#e8dde4}
+
+.preview-bar{
+  padding:13px 22px;border-bottom:1.5px solid var(--border);
+  background:var(--white);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.preview-bar h2{font-family:var(--font-d);font-size:.9rem;color:var(--dark)}
+.preview-bar span{font-size:.66rem;color:#BCA8B1}
+
+/* White canvas wrapper */
+.preview-scroll{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:0}
+.preview-canvas{
+  background:#fff;border-radius:10px;
+  box-shadow:0 2px 20px rgba(24,9,16,.10);
+  padding:0 32px;
+  text-align:left;
+}
+
+.empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;color:#D4B8C6;min-height:300px;
+}
+.empty-ico{font-size:1.8rem;color:#EDD6E2}
+.empty p{font-size:.78rem;font-style:italic}
+
+/* ── PREVIEW SECTIONS ── */
+.pv-section{
+  padding:var(--pv-pt,40px) 0 var(--pv-pb,40px);
+  border-bottom:1px dashed #EDD6E2;
+  cursor:pointer;position:relative;transition:background .15s;
+  border-radius:6px;
+}
+.pv-section:last-child{border-bottom:none}
+.pv-section:hover{background:rgba(232,40,110,.025)}
+.pv-section.selected{background:rgba(232,40,110,.04);outline:2px solid var(--pink-mid);outline-offset:4px}
+
+.pv-section-tag{
+  position:absolute;top:8px;right:8px;
+  font-size:.55rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--pink);background:var(--pink-light);padding:2px 7px;border-radius:20px;
+  opacity:0;transition:opacity .2s;
+}
+.pv-section:hover .pv-section-tag,.pv-section.selected .pv-section-tag{opacity:1}
+
+.pv-h2{
+  font-family:var(--font-d);font-size:1.35rem;color:var(--dark);
+  margin-bottom:var(--pv-gap,14px);
+}
+.pv-body-text{font-size:.85rem;color:var(--gray);line-height:1.8;max-width:620px;word-break:break-word}
+
+/* FAQ Preview */
+.pv-faq-list{display:flex;flex-direction:column;gap:8px}
+.pv-faq-item{border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.pv-faq-q{
+  background:var(--pink-light);padding:12px 15px;font-size:.8rem;font-weight:600;color:var(--dark);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;word-break:break-word;
+}
+.pv-faq-q-ico{font-size:.7rem;color:var(--pink);flex-shrink:0}
+.pv-faq-a{padding:10px 15px;font-size:.77rem;color:var(--gray);line-height:1.7;background:#fff;word-break:break-word}
+
+/* Depoimentos masonry 3col */
+.pv-masonry{columns:3;column-gap:14px}
+.pv-dep-card{
+  break-inside:avoid;margin-bottom:14px;
+  background:#fff;border:1px solid #F0DCE8;
+  border-radius:16px;padding:18px;
+  box-shadow:0 4px 24px rgba(0,0,0,.07);
+  word-break:break-word;overflow-wrap:break-word;min-width:0;
+}
+
+/* Header: avatar + nome/tempo lado a lado */
+.pv-dep-hd{display:flex;align-items:center;gap:12px;margin-bottom:12px;min-width:0}
+.pv-dep-av{
+  width:48px;height:48px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,var(--pink),var(--pink-mid));
+  color:#fff;font-weight:700;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.pv-dep-av img{width:100%;height:100%;object-fit:cover;display:block}
+.pv-dep-hd-info{min-width:0;display:flex;flex-direction:column;gap:2px}
+.pv-dep-nome{font-size:.82rem;font-weight:600;color:var(--dark);display:block;word-break:break-word}
+.pv-dep-tempo{font-size:.9rem;font-weight:600;color:var(--dark);display:block;line-height:1.2}
+
+/* Texto do depoimento */
+.pv-dep-txt{font-size:.8rem;color:#444;line-height:1.7;word-break:break-word;overflow-wrap:break-word;margin-bottom:12px}
+
+/* Fotos antes/depois */
+.pv-dep-fotos{display:flex;gap:6px}
+.pv-dep-foto{
+  flex:1;position:relative;border-radius:10px;overflow:hidden;
+  background:#f5eaf0;
+}
+.pv-dep-foto img{width:100%;height:120px;object-fit:cover;display:block}
+.pv-dep-foto .foto-placeholder{
+  height:120px;display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;color:#c9aab8;text-align:center;padding:8px;flex-direction:column;gap:4px;
+}
+.pv-dep-foto span.label{
+  position:absolute;top:8px;left:8px;
+  background:rgba(255,255,255,.95);font-size:.65rem;font-weight:600;
+  padding:3px 9px;border-radius:20px;color:var(--dark);
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+}
+
+/* ── RIGHT ── */
+.right{background:var(--white);border-left:1.5px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.right-header{padding:15px 16px 11px;border-bottom:1.5px solid var(--border);display:flex;align-items:center}
+.right-header h3{font-family:var(--font-d);font-size:.9rem;color:var(--dark);flex:1}
+.right-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#D4B8C6;padding:22px;text-align:center}
+.right-empty .ico{font-size:1.4rem}
+.right-empty p{font-size:.72rem;font-style:italic;line-height:1.55}
+.right-scroll{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+
+/* ── PROPERTY CONTROLS ── */
+.prop-group{display:flex;flex-direction:column;gap:7px}
+.prop-label{font-size:.6rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.08em}
+.prop-row{display:flex;align-items:center;gap:7px}
+.prop-row-label{font-size:.67rem;color:var(--gray);width:82px;flex-shrink:0;line-height:1.3}
+
+.prop-input{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:7px 10px;font-family:var(--font-b);font-size:.78rem;
+  color:var(--dark);background:#FDFBFC;outline:none;resize:vertical;
+  transition:border-color .2s;
+}
+.prop-input:focus{border-color:var(--pink-mid);background:#fff}
+textarea.prop-input{min-height:72px}
+
+.prop-slider-wrap{display:flex;align-items:center;gap:7px;flex:1}
+.prop-slider{
+  flex:1;-webkit-appearance:none;height:4px;
+  background:linear-gradient(to right,var(--pink) 0%,var(--pink) var(--val,50%),#EDD6E2 var(--val,50%),#EDD6E2 100%);
+  border-radius:2px;outline:none;cursor:pointer;
+}
+.prop-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;
+  background:var(--pink);border-radius:50%;border:2px solid #fff;
+  box-shadow:0 1px 5px rgba(232,40,110,.4);cursor:pointer;
+}
+.prop-val{font-size:.68rem;font-weight:600;color:var(--pink);width:28px;text-align:right;flex-shrink:0}
+
+.prop-divider{height:1px;background:var(--border);margin:3px 0}
+
+.sub-item{border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:4px}
+.sub-item-head{display:flex;align-items:center;gap:6px;padding:8px 11px;background:#FDF5F8;cursor:pointer;user-select:none}
+.sub-item-head-label{font-size:.7rem;font-weight:500;color:var(--gray);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub-item-head-actions{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.sub-item-toggle{font-size:.65rem;color:#BCA8B1;transition:transform .2s;display:inline-block}
+.sub-item-body{padding:9px 11px;display:flex;flex-direction:column;gap:5px}
+.sub-item-body.collapsed{display:none}
+
+.field-label{font-size:.6rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1px;display:block}
+
+.btn-move{
+  background:none;border:1px solid #EDD6E2;border-radius:5px;
+  color:#BCA8B1;font-size:.65rem;padding:2px 5px;
+  cursor:pointer;transition:color .15s,border-color .15s;flex-shrink:0;line-height:1;
+}
+.btn-move:hover{color:var(--pink);border-color:var(--pink)}
+
+.btn-add-sub{
+  background:transparent;border:1.5px dashed var(--pink-mid);
+  border-radius:8px;color:var(--pink);font-family:var(--font-b);
+  font-size:.72rem;font-weight:500;padding:6px 11px;
+  cursor:pointer;transition:background .15s;align-self:flex-start;
+}
+.btn-add-sub:hover{background:var(--pink-light)}
+
+.btn-rm{
+  background:none;border:1px solid #EDD6E2;border-radius:6px;
+  color:#BCA8B1;font-size:.67rem;padding:2px 7px;
+  cursor:pointer;transition:color .15s,border-color .15s;flex-shrink:0;
+}
+.btn-rm:hover{color:var(--pink);border-color:var(--pink)}
+
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-bg{position:absolute;inset:0;background:rgba(24,9,16,.65);backdrop-filter:blur(5px)}
+.modal-box{
+  position:relative;z-index:1;background:#fff;border-radius:18px;
+  width:100%;max-width:800px;max-height:90vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 28px 80px rgba(24,9,16,.3);
+  animation:mIn .25s ease;
+}
+@keyframes mIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 12px;border-bottom:1.5px solid var(--border)}
+.modal-hd h3{font-family:var(--font-d);font-size:1rem;color:var(--dark)}
+.modal-close{background:none;border:none;font-size:.9rem;color:var(--gray);cursor:pointer;padding:3px 7px;border-radius:6px;transition:background .15s}
+.modal-close:hover{background:var(--pink-light)}
+.modal-tabs{display:flex;gap:3px;padding:10px 22px 0;border-bottom:1.5px solid var(--border)}
+.mtab{background:none;border:none;font-family:var(--font-b);font-size:.8rem;font-weight:500;color:#BCA8B1;padding:7px 14px;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:color .15s,border-color .15s}
+.mtab.active{color:var(--pink);border-color:var(--pink)}
+.modal-body{flex:1;overflow-y:auto;padding:18px 22px;background:#180910}
+.code-block{font-family:'Courier New',monospace;font-size:.72rem;color:#F5D6E6;white-space:pre;line-height:1.65}
+.modal-ft{padding:13px 22px;display:flex;gap:8px;border-top:1.5px solid var(--border);background:#fff}
+.btn-copy{background:var(--pink);color:#fff;border:none;border-radius:9px;padding:9px 20px;font-family:var(--font-b);font-size:.8rem;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-copy:hover{opacity:.88}
+.btn-copy.sec{background:var(--pink-light);color:var(--pink)}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT -->
+  <aside class="left">
+    <div class="brand"><span class="brand-dot"></span><h1>Descrição<br><em>Builder</em></h1></div>
+
+    <div>
+      <div class="panel-label" style="margin-bottom:9px">Adicionar seção</div>
+      <div class="add-btns">
+        <button class="btn-add" onclick="addSection('texto')"><span class="ico">✦</span> Título &amp; Texto</button>
+        <button class="btn-add" onclick="addSection('faq')"><span class="ico">✦</span> FAQ</button>
+        <button class="btn-add" onclick="addSection('depoimento')"><span class="ico">✦</span> Depoimento</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label" style="margin-bottom:9px">Seções</div>
+      <div class="sec-list" id="sec-list">
+        <div style="font-size:.7rem;color:#4A2E3C;font-style:italic">Nenhuma seção ainda</div>
+      </div>
+    </div>
+
+    <div class="left-foot">
+      <button class="btn-gen" onclick="generateHTML()">Gerar HTML + CSS</button>
+      <button class="btn-clr" onclick="clearAll()">Limpar tudo</button>
+    </div>
+  </aside>
+
+  <!-- CENTER -->
+  <main class="center">
+    <div class="preview-bar">
+      <h2>Prévia</h2>
+      <span>Clique em uma seção para editar</span>
+    </div>
+    <div class="preview-scroll">
+      <div class="preview-canvas" id="preview">
+        <div class="empty" id="empty-state">
+          <div class="empty-ico">✦</div>
+          <p>Adicione uma seção para começar</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT -->
+  <aside class="right">
+    <div class="right-header">
+      <h3 id="right-title">Propriedades</h3>
+    </div>
+    <div class="right-empty" id="right-empty">
+      <div class="ico">⟵</div>
+      <p>Clique em uma seção na prévia para editar conteúdo e design</p>
+    </div>
+    <div class="right-scroll" id="right-panel" style="display:none"></div>
+  </aside>
+
+</div>
+
+<!-- MODAL -->
+<div id="output-modal" class="modal" style="display:none">
+  <div class="modal-bg" onclick="closeModal()"></div>
+  <div class="modal-box">
+    <div class="modal-hd">
+      <h3>Código Gerado</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="mtab active" onclick="switchTab('html',this)">HTML</button>
+      <button class="mtab" onclick="switchTab('css',this)">CSS</button>
+    </div>
+    <div class="modal-body">
+      <pre id="out-html" class="code-block"></pre>
+      <pre id="out-css" class="code-block" style="display:none"></pre>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-copy" onclick="copyCode('html')">Copiar HTML</button>
+      <button class="btn-copy sec" onclick="copyCode('css')">Copiar CSS</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let sections = [];
+let selectedId = null;
+let _uid = 0;
+const uid = () => 'sec' + (++_uid);
+
+function defaultData(type) {
+  if (type === 'texto') return { titulo:'', texto:'' };
+  if (type === 'faq')   return { titulo:'Perguntas Frequentes', items:[{q:'',a:''}] };
+  if (type === 'depoimento') return { titulo:'Depoimentos', items:[{nome:'',tempo:'',foto:'',texto:'',antes:'',depois:''}] };
+}
+function defaultStyle(type) {
+  const base = { ptop:40, pbottom:40 };
+  if (type === 'texto') return { ...base, gap:14 };
+  return base;
+}
+
+function addSection(type) {
+  const id = uid();
+  sections.push({ id, type, data:defaultData(type), style:defaultStyle(type) });
+  renderAll();
+  selectSection(id);
+}
+
+function removeSection(id, e) {
+  if (e) e.stopPropagation();
+  sections = sections.filter(s => s.id !== id);
+  if (selectedId === id) { selectedId = null; showRightEmpty(); }
+  renderAll();
+}
+
+function moveSection(id, dir, e) {
+  if (e) e.stopPropagation();
+  const i = sections.findIndex(s => s.id === id);
+  if (dir === -1 && i === 0) return;
+  if (dir === 1 && i === sections.length - 1) return;
+  [sections[i], sections[i+dir]] = [sections[i+dir], sections[i]];
+  renderAll();
+}
+
+function selectSection(id) {
+  selectedId = id;
+  renderPreview();
+  renderSideList();
+  renderRightPanel();
+}
+
+function renderAll() {
+  renderPreview();
+  renderSideList();
+  if (selectedId && sections.find(s => s.id === selectedId)) renderRightPanel();
+  else if (selectedId) { selectedId = null; showRightEmpty(); }
+}
+
+/* ── Side list ── */
+function renderSideList() {
+  const list = document.getElementById('sec-list');
+  if (!sections.length) {
+    list.innerHTML = '<div style="font-size:.7rem;color:#4A2E3C;font-style:italic">Nenhuma seção ainda</div>';
+    return;
+  }
+  const lbl = { texto:'Título & Texto', faq:'FAQ', depoimento:'Depoimento' };
+  list.innerHTML = sections.map(s => `
+    <div class="sec-chip ${s.id===selectedId?'active':''}" onclick="selectSection('${s.id}')">
+      <div>
+        <div class="sec-chip-type">${lbl[s.type]}</div>
+        <div style="font-size:.7rem;margin-top:1px">${trunc(s.data.titulo||'(sem título)',22)}</div>
+      </div>
+      <div class="sec-chip-actions">
+        <button onclick="moveSection('${s.id}',-1,event)">↑</button>
+        <button onclick="moveSection('${s.id}',1,event)">↓</button>
+        <button onclick="removeSection('${s.id}',event)">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function trunc(str,n){ return str.length>n ? str.slice(0,n)+'…' : str; }
+
+/* ── Preview ── */
+function renderPreview() {
+  const el = document.getElementById('preview');
+  document.getElementById('empty-state').style.display = sections.length ? 'none' : 'flex';
+  el.querySelectorAll('.pv-section').forEach(n => n.remove());
+
+  sections.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'pv-section' + (s.id===selectedId?' selected':'');
+    div.dataset.id = s.id;
+    div.style.setProperty('--pv-pt', s.style.ptop+'px');
+    div.style.setProperty('--pv-pb', s.style.pbottom+'px');
+    if (s.type==='texto') div.style.setProperty('--pv-gap', (s.style.gap||14)+'px');
+    div.onclick = () => selectSection(s.id);
+    const lbl = { texto:'Título & Texto', faq:'FAQ', depoimento:'Depoimento' };
+    div.innerHTML = `<div class="pv-section-tag">${lbl[s.type]}</div>` + pvHTML(s);
+    el.appendChild(div);
+  });
+}
+
+function pvHTML(s) {
+  const x = str => (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  if (s.type==='texto') return `
+    <h2 class="pv-h2">${x(s.data.titulo)||'<span style="color:#ccc;font-style:italic">Título aqui</span>'}</h2>
+    <p class="pv-body-text">${x(s.data.texto).replace(/\n/g,'<br>')||'<span style="color:#ccc;font-style:italic">Texto aqui…</span>'}</p>`;
+
+  if (s.type==='faq') {
+    const items = (s.data.items||[]).map(i=>`
+      <div class="pv-faq-item">
+        <div class="pv-faq-q">
+          <span>${x(i.q)||'<em style="color:#aaa">Pergunta…</em>'}</span>
+          <span class="pv-faq-q-ico">▾</span>
+        </div>
+        <div class="pv-faq-a">${x(i.a)||'<em style="color:#ccc">Resposta…</em>'}</div>
+      </div>`).join('');
+    return `<div class="pv-faq-list">${items}</div>`;
+  }
+
+  if (s.type==='depoimento') {
+    const cards = (s.data.items||[]).map(i=>{
+      // Avatar
+      const avatarInner = i.foto
+        ? `<img src="${x(i.foto)}" alt="${x(i.nome)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-weight:700">${x((i.nome||'C').charAt(0))}</span>`
+        : `<span>${x((i.nome||'C').charAt(0))}</span>`;
+
+      // Fotos antes/depois
+      let fotos = '';
+      if (i.antes || i.depois) {
+        const makeF = (url, label) => url
+          ? `<div class="pv-dep-foto">
+              <img src="${x(url)}" alt="${label}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+              <div class="foto-placeholder" style="display:none">📷<br>${label}</div>
+              <span class="label">${label}</span>
+            </div>`
+          : '';
+        fotos = `<div class="pv-dep-fotos">${makeF(i.antes,'Antes')}${makeF(i.depois,'Depois')}</div>`;
+      }
+
+      return `<div class="pv-dep-card">
+        <div class="pv-dep-hd">
+          <div class="pv-dep-av">${avatarInner}</div>
+          <div class="pv-dep-hd-info">
+            <span class="pv-dep-nome">${x(i.nome)||'<em style="color:#ccc">Nome</em>'}</span>
+            ${i.tempo?`<span class="pv-dep-tempo">${x(i.tempo)}</span>`:'<em style="font-size:.7rem;color:#ccc">Tempo de tratamento</em>'}
+          </div>
+        </div>
+        <p class="pv-dep-txt">${i.texto ? '"'+x(i.texto)+'"' : '<em style="color:#ccc">Depoimento…</em>'}</p>
+        ${fotos}
+      </div>`;
+    }).join('');
+    return `<div class="pv-masonry">${cards}</div>`;
+  }
+  return '';
+}
+
+/* ── Right Panel ── */
+function showRightEmpty() {
+  document.getElementById('right-empty').style.display='flex';
+  document.getElementById('right-panel').style.display='none';
+  document.getElementById('right-title').textContent='Propriedades';
+}
+
+function renderRightPanel() {
+  const s = sections.find(x=>x.id===selectedId);
+  if (!s) { showRightEmpty(); return; }
+  document.getElementById('right-empty').style.display='none';
+  document.getElementById('right-panel').style.display='flex';
+  const lbl = { texto:'Título & Texto', faq:'FAQ', depoimento:'Depoimento' };
+  document.getElementById('right-title').textContent = lbl[s.type];
+
+  const p = document.getElementById('right-panel');
+  p.innerHTML = '';
+
+  // Spacing
+  const gapRow = s.type==='texto' ? `
+    <div class="prop-row">
+      <span class="prop-row-label">Gap título/texto</span>
+      <div class="prop-slider-wrap">
+        <input type="range" class="prop-slider" min="0" max="60" value="${s.style.gap||14}"
+          oninput="updateStyle('${s.id}','gap',+this.value);sliderFill(this)"
+          style="--val:${((s.style.gap||14)/60*100).toFixed(0)}%"/>
+        <span class="prop-val" id="gap-val-${s.id}">${s.style.gap||14}px</span>
+      </div>
+    </div>` : '';
+
+  p.innerHTML += `
+    <div class="prop-group">
+      <div class="prop-label">Espaçamento</div>
+      <div class="prop-row">
+        <span class="prop-row-label">Padding top</span>
+        <div class="prop-slider-wrap">
+          <input type="range" class="prop-slider" min="0" max="120" value="${s.style.ptop}"
+            oninput="updateStyle('${s.id}','ptop',+this.value);sliderFill(this)"
+            style="--val:${(s.style.ptop/120*100).toFixed(0)}%"/>
+          <span class="prop-val" id="ptop-val-${s.id}">${s.style.ptop}px</span>
+        </div>
+      </div>
+      <div class="prop-row">
+        <span class="prop-row-label">Padding bottom</span>
+        <div class="prop-slider-wrap">
+          <input type="range" class="prop-slider" min="0" max="120" value="${s.style.pbottom}"
+            oninput="updateStyle('${s.id}','pbottom',+this.value);sliderFill(this)"
+            style="--val:${(s.style.pbottom/120*100).toFixed(0)}%"/>
+          <span class="prop-val" id="pbottom-val-${s.id}">${s.style.pbottom}px</span>
+        </div>
+      </div>
+      ${gapRow}
+    </div>
+    <div class="prop-divider"></div>`;
+
+  // Content
+  if (s.type==='texto') {
+    p.innerHTML += `
+      <div class="prop-group">
+        <div class="prop-label">Conteúdo</div>
+        <label style="font-size:.67rem;color:var(--gray)">Título</label>
+        <input type="text" class="prop-input" value="${esc(s.data.titulo)}" placeholder="Título da seção"
+          oninput="updateData('${s.id}','titulo',this.value)"/>
+        <label style="font-size:.67rem;color:var(--gray)">Texto</label>
+        <textarea class="prop-input" placeholder="Texto…"
+          oninput="updateData('${s.id}','texto',this.value)">${esc(s.data.texto)}</textarea>
+      </div>`;
+  }
+
+  if (s.type==='faq') {
+    p.innerHTML += `
+      <div class="prop-group">
+        <div class="prop-label">Conteúdo</div>
+        <label style="font-size:.67rem;color:var(--gray)">Título</label>
+        <input type="text" class="prop-input" value="${esc(s.data.titulo)}" placeholder="Título da seção"
+          oninput="updateData('${s.id}','titulo',this.value)"/>
+      </div>
+      <div class="prop-divider"></div>
+      <div class="prop-group">
+        <div class="prop-label">Perguntas</div>
+        <div id="faq-items-${s.id}">${renderFaqItems(s)}</div>
+        <button class="btn-add-sub" onclick="addSubItem('${s.id}','faq')">+ Pergunta</button>
+      </div>`;
+  }
+
+  if (s.type==='depoimento') {
+    p.innerHTML += `
+      <div class="prop-group">
+        <div class="prop-label">Conteúdo</div>
+        <label style="font-size:.67rem;color:var(--gray)">Título</label>
+        <input type="text" class="prop-input" value="${esc(s.data.titulo)}" placeholder="Título da seção"
+          oninput="updateData('${s.id}','titulo',this.value)"/>
+      </div>
+      <div class="prop-divider"></div>
+      <div class="prop-group">
+        <div class="prop-label">Depoimentos</div>
+        <div id="dep-items-${s.id}">${renderDepItems(s)}</div>
+        <button class="btn-add-sub" onclick="addSubItem('${s.id}','dep')">+ Depoimento</button>
+      </div>`;
+  }
+}
+
+function esc(str){ return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderFaqItems(s) {
+  const n = s.data.items.length;
+  return (s.data.items||[]).map((item,i)=>`
+    <div class="sub-item">
+      <div class="sub-item-head" onclick="toggleSub(this)">
+        <span class="sub-item-toggle">▸</span>
+        <span class="sub-item-head-label">${trunc(item.q||'Pergunta '+(i+1),28)}</span>
+        <div class="sub-item-head-actions">
+          <button class="btn-move" onclick="moveSubItem('${s.id}','faq',${i},-1,event)" ${i===0?'disabled':''}>↑</button>
+          <button class="btn-move" onclick="moveSubItem('${s.id}','faq',${i},1,event)" ${i===n-1?'disabled':''}>↓</button>
+          <button class="btn-rm" onclick="removeSubItem('${s.id}','faq',${i},event)">✕</button>
+        </div>
+      </div>
+      <div class="sub-item-body collapsed">
+        <label class="field-label">Pergunta</label>
+        <input type="text" class="prop-input" value="${esc(item.q)}" placeholder="Digite a pergunta"
+          oninput="updateSubField('${s.id}','faq',${i},'q',this.value)"/>
+        <label class="field-label">Resposta</label>
+        <textarea class="prop-input" placeholder="Digite a resposta"
+          oninput="updateSubField('${s.id}','faq',${i},'a',this.value)">${esc(item.a)}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function renderDepItems(s) {
+  const n = s.data.items.length;
+  return (s.data.items||[]).map((item,i)=>`
+    <div class="sub-item">
+      <div class="sub-item-head" onclick="toggleSub(this)">
+        <span class="sub-item-toggle">▸</span>
+        <span class="sub-item-head-label">${trunc(item.nome||'Depoimento '+(i+1),22)}</span>
+        <div class="sub-item-head-actions">
+          <button class="btn-move" onclick="moveSubItem('${s.id}','dep',${i},-1,event)" ${i===0?'disabled':''}>↑</button>
+          <button class="btn-move" onclick="moveSubItem('${s.id}','dep',${i},1,event)" ${i===n-1?'disabled':''}>↓</button>
+          <button class="btn-rm" onclick="removeSubItem('${s.id}','dep',${i},event)">✕</button>
+        </div>
+      </div>
+      <div class="sub-item-body collapsed">
+        <label class="field-label">Nome</label>
+        <input type="text" class="prop-input" value="${esc(item.nome)}" placeholder="Nome da pessoa"
+          oninput="updateSubField('${s.id}','dep',${i},'nome',this.value)"/>
+        <label class="field-label">Tempo de tratamento</label>
+        <input type="text" class="prop-input" value="${esc(item.tempo)}" placeholder="Ex: 5 dias de tratamento"
+          oninput="updateSubField('${s.id}','dep',${i},'tempo',this.value)"/>
+        <label class="field-label">URL da foto de perfil</label>
+        <input type="text" class="prop-input" value="${esc(item.foto)}" placeholder="https://..."
+          oninput="updateSubField('${s.id}','dep',${i},'foto',this.value)"/>
+        <label class="field-label">Depoimento</label>
+        <textarea class="prop-input" placeholder="Texto do depoimento…"
+          oninput="updateSubField('${s.id}','dep',${i},'texto',this.value)">${esc(item.texto)}</textarea>
+        <label class="field-label">Foto Antes</label>
+        <input type="text" class="prop-input" value="${esc(item.antes)}" placeholder="https://..."
+          oninput="updateSubField('${s.id}','dep',${i},'antes',this.value)"/>
+        <label class="field-label">Foto Depois</label>
+        <input type="text" class="prop-input" value="${esc(item.depois)}" placeholder="https://..."
+          oninput="updateSubField('${s.id}','dep',${i},'depois',this.value)"/>
+      </div>
+    </div>`).join('');
+}
+
+function toggleSub(head) {
+  const body = head.nextElementSibling;
+  const arrow = head.querySelector('.sub-item-toggle');
+  const isOpen = !body.classList.contains('collapsed');
+  body.classList.toggle('collapsed');
+  if(arrow) arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
+}
+
+function moveSubItem(id, type, idx, dir, e) {
+  if(e) e.stopPropagation();
+  const s = sections.find(x=>x.id===id); if(!s) return;
+  const arr = s.data.items;
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= arr.length) return;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  renderPreview();
+  const cid = (type==='faq'?'faq':'dep')+'-items-'+id;
+  const c = document.getElementById(cid);
+  if(c) c.innerHTML = type==='faq' ? renderFaqItems(s) : renderDepItems(s);
+}
+
+function updateStyle(id,key,val) {
+  const s = sections.find(x=>x.id===id); if(!s) return;
+  s.style[key] = val;
+  const lbl = document.getElementById(key+'-val-'+id);
+  if(lbl) lbl.textContent = val+'px';
+  renderPreview();
+}
+
+function updateData(id,key,val) {
+  const s = sections.find(x=>x.id===id); if(!s) return;
+  s.data[key] = val;
+  renderPreview(); renderSideList();
+}
+
+function updateSubField(id,type,idx,field,val) {
+  const s = sections.find(x=>x.id===id); if(!s) return;
+  s.data.items[idx][field] = val;
+  renderPreview(); renderSideList();
+  // update header label
+  const cid = (type==='faq'?'faq':'dep')+'-items-'+id;
+  const container = document.getElementById(cid);
+  if(container) {
+    const heads = container.querySelectorAll('.sub-item-head span');
+    const label = type==='faq'
+      ? (s.data.items[idx].q||'Pergunta '+(idx+1))
+      : (s.data.items[idx].nome||'Depoimento '+(idx+1));
+    if(heads[idx]) heads[idx].textContent = trunc(label, type==='faq'?26:22);
+  }
+}
+
+function addSubItem(id,type) {
+  const s = sections.find(x=>x.id===id); if(!s) return;
+  if(type==='faq') s.data.items.push({q:'',a:''});
+  if(type==='dep') s.data.items.push({nome:'',tempo:'',foto:'',texto:'',antes:'',depois:''});
+  renderPreview();
+  const cid = (type==='faq'?'faq':'dep')+'-items-'+id;
+  const c = document.getElementById(cid);
+  if(c) c.innerHTML = type==='faq' ? renderFaqItems(s) : renderDepItems(s);
+}
+
+function removeSubItem(id,type,idx,e) {
+  if(e) e.stopPropagation();
+  const s = sections.find(x=>x.id===id);
+  if(!s||s.data.items.length<=1) return;
+  s.data.items.splice(idx,1);
+  renderPreview();
+  const cid = (type==='faq'?'faq':'dep')+'-items-'+id;
+  const c = document.getElementById(cid);
+  if(c) c.innerHTML = type==='faq' ? renderFaqItems(s) : renderDepItems(s);
+}
+
+function sliderFill(input) {
+  const pct = ((input.value-input.min)/(input.max-input.min)*100).toFixed(0);
+  input.style.setProperty('--val',pct+'%');
+}
+
+function clearAll() {
+  sections=[]; selectedId=null;
+  renderAll(); showRightEmpty();
+}
+
+/* ── Generate ── */
+function generateHTML() {
+  if(!sections.length){ alert('Adicione pelo menos uma seção!'); return; }
+
+  const e = str => (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  let body = '';
+  sections.forEach(s => {
+    const pt=s.style.ptop, pb=s.style.pbottom;
+    const st = `padding:${pt}px 0 ${pb}px`;
+
+    if(s.type==='texto') {
+      const gap = s.style.gap||14;
+      body += `
+  <section class="glowny-section glowny-texto" style="${st}">
+    <h2 class="glowny-h2">${e(s.data.titulo)}</h2>
+    <p class="glowny-texto-body" style="margin-top:${gap}px">${e(s.data.texto).replace(/\n/g,'<br>')}</p>
+  </section>`;
+    }
+
+    if(s.type==='faq') {
+      const items = (s.data.items||[]).filter(i=>i.q).map(i=>`
+      <div class="glowny-faq-item">
+        <button class="glowny-faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <span>${e(i.q)}</span>
+          <svg class="glowny-faq-ico" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="glowny-faq-a"><p>${e(i.a)}</p></div>
+      </div>`).join('');
+      body += `
+  <section class="glowny-section glowny-faq" style="${st}">
+    <div class="glowny-faq-list">${items}
+    </div>
+  </section>`;
+    }
+
+    if(s.type==='depoimento') {
+      const cards = (s.data.items||[]).map(i=>{
+        const avatarInner = i.foto
+          ? `<img src="${e(i.foto)}" alt="${e(i.nome)}" onerror="this.style.display='none'"/>`
+          : `<span>${e((i.nome||'C').charAt(0))}</span>`;
+
+        let fotos = '';
+        if(i.antes||i.depois) {
+          fotos = `
+        <div class="glowny-dep-fotos">
+          ${i.antes?`<div class="glowny-dep-foto"><img src="${e(i.antes)}" alt="Antes"/><span>Antes</span></div>`:''}
+          ${i.depois?`<div class="glowny-dep-foto"><img src="${e(i.depois)}" alt="Depois"/><span>Depois</span></div>`:''}
+        </div>`;
+        }
+        return `
+      <div class="glowny-dep-card">
+        <div class="glowny-dep-hd">
+          <div class="glowny-dep-av">${avatarInner}</div>
+          <div class="glowny-dep-hd-info">
+            <span class="glowny-dep-nome">${e(i.nome)}</span>
+            ${i.tempo?`<span class="glowny-dep-tempo">${e(i.tempo)}</span>`:''}
+          </div>
+        </div>
+        <p class="glowny-dep-txt">"${e(i.texto)}"</p>${fotos}
+      </div>`;
+      }).join('');
+      body += `
+  <section class="glowny-section glowny-dep" style="${st}">
+    <div class="glowny-masonry">${cards}
+    </div>
+  </section>`;
+    }
+  });
+
+  const finalHTML = `<div id="glowny">${body}
+</div>`;
+
+  const finalCSS = `/* ── Glowny Product Description ── */
+
+#glowny * { box-sizing:border-box; }
+
+#glowny .glowny-section {
+  border-bottom:1px solid #EDD6E2;
+}
+#glowny .glowny-section:last-child { border-bottom:none; }
+
+#glowny .glowny-h2 {
+  margin-bottom:20px;
+}
+
+/* Texto */
+#glowny .glowny-texto-body {
+  line-height:1.85;max-width:680px;
+}
+
+/* FAQ */
+#glowny .glowny-faq-list { display:flex;flex-direction:column;gap:10px; }
+#glowny .glowny-faq-item {
+  border:1.5px solid #EDD6E2;border-radius:12px;overflow:hidden;margin-bottom:8px;
+}
+#glowny .glowny-faq-q {
+  width:100%;background:#FFE8F1;padding:14px 18px;font-weight:600;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:none;cursor:pointer;text-align:left;
+  transition:background .2s;
+}
+#glowny .glowny-faq-q:hover { background:#fcd9e9; }
+#glowny .glowny-faq-ico {
+  flex-shrink:0;transition:transform .25s;color:#E8286E;
+}
+#glowny .glowny-faq-q.open .glowny-faq-ico { transform:rotate(180deg); }
+#glowny .glowny-faq-a {
+  max-height:0;overflow:hidden;background:#fff;
+  transition:max-height .3s ease, padding .3s ease;padding:0 18px;
+}
+#glowny .glowny-faq-a.open { max-height:400px;padding:13px 18px; }
+#glowny .glowny-faq-a p { line-height:1.75; }
+
+/* Depoimentos — masonry 3 colunas */
+#glowny .glowny-masonry { columns:3;column-gap:16px; }
+@media(max-width:640px){ #glowny .glowny-masonry { columns:1; } }
+@media(min-width:641px) and (max-width:900px){ #glowny .glowny-masonry { columns:2; } }
+
+#glowny .glowny-dep-card {
+  break-inside:avoid;margin-bottom:16px;
+  border:1px solid #F0DCE8;border-radius:18px;
+  padding:20px;background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.07);
+  word-break:break-word;overflow-wrap:break-word;
+}
+#glowny .glowny-dep-hd {
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;
+}
+#glowny .glowny-dep-av {
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,#E8286E,#F5729A);
+  color:#fff;font-weight:700;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+#glowny .glowny-dep-av img {
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+#glowny .glowny-dep-hd-info {
+  display:flex;flex-direction:column;gap:3px;min-width:0;
+}
+#glowny .glowny-dep-nome {
+  display:block;font-weight:600;
+}
+#glowny .glowny-dep-tempo {
+  display:block;font-weight:600;
+}
+#glowny .glowny-dep-txt {
+  line-height:1.75;margin-bottom:14px;
+}
+#glowny .glowny-dep-fotos { display:flex;gap:8px; }
+#glowny .glowny-dep-foto {
+  flex:1;position:relative;border-radius:10px;overflow:hidden;
+}
+#glowny .glowny-dep-foto img {
+  width:100%;height:140px;object-fit:cover;display:block;
+}
+#glowny .glowny-dep-foto span {
+  position:absolute;top:8px;left:8px;
+  background:rgba(255,255,255,.95);font-weight:600;
+  padding:3px 10px;border-radius:20px;
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+}`;
+
+  document.getElementById('out-html').textContent = finalHTML;
+  document.getElementById('out-css').textContent = finalCSS;
+  document.getElementById('output-modal').style.display = 'flex';
+}
+
+function closeModal(){ document.getElementById('output-modal').style.display='none'; }
+
+function switchTab(tab,btn) {
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('out-html').style.display = tab==='html'?'block':'none';
+  document.getElementById('out-css').style.display  = tab==='css' ?'block':'none';
+}
+
+function copyCode(type) {
+  navigator.clipboard.writeText(document.getElementById('out-'+type).textContent)
+    .then(()=>alert(type.toUpperCase()+' copiado!'));
+}
+</script>
+</body>
+</html>
