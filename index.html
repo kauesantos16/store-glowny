@@ -77,6 +77,27 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .inp:focus,.ta:focus{border-color:var(--pink);}
 .inp-sm{padding:6px 9px;font-size:12px;}
 .ta{resize:vertical;min-height:68px;line-height:1.55;}
+
+/* Slider input for spacing */
+.slider-field{display:flex;flex-direction:column;gap:5px;}
+.slider-wrap{display:flex;align-items:center;gap:8px;}
+.slider-val{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--text);min-width:28px;text-align:right;}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:4px;border-radius:100px;
+  background:var(--border);outline:none;cursor:pointer;
+  transition:background .15s;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--pink);cursor:pointer;
+  box-shadow:0 1px 4px rgba(232,50,122,.35);
+  transition:transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+input[type=range]:hover{background:var(--pink-bd);}
+
 .sep{height:1px;background:var(--border);margin:2px 0;}
 .pr-group-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);padding:4px 0 2px;}
 .sub-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:11px;display:flex;flex-direction:column;gap:9px;}
@@ -127,16 +148,21 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 #glowny .glowny-testi-top{display:flex;align-items:center;gap:10px;padding:14px 14px 10px;}
 #glowny .glowny-testi-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#ede9e3;display:flex;align-items:center;justify-content:center;font-size:20px;}
 #glowny .glowny-testi-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-#glowny .glowny-testi-name{font-size:13px;font-weight:800;color:#1c1b18;line-height:1.2;}
-#glowny .glowny-testi-time{font-size:11px;font-weight:600;color:#e8327a;margin-top:2px;}
+/* UPDATED: name color #343D46, 12px */
+#glowny .glowny-testi-name{font-size:12px;font-weight:800;color:#343D46;line-height:1.2;}
+/* UPDATED: time color #343D46, 16px */
+#glowny .glowny-testi-time{font-size:16px;font-weight:600;color:#343D46;margin-top:2px;}
 #glowny .glowny-testi-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
-#glowny .glowny-testi-stars{color:#f59e0b;font-size:13px;letter-spacing:2px;}
+/* REMOVED: stars styles kept but stars won't be rendered */
+#glowny .glowny-testi-stars{display:none;}
 #glowny .glowny-testi-text{font-size:13px;line-height:1.75;color:#3a3632;}
-#glowny .glowny-testi-before-after{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+/* UPDATED: gap of 4px between before/after images */
+#glowny .glowny-testi-before-after{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 #glowny .glowny-testi-img-wrap{position:relative;overflow:hidden;}
-#glowny .glowny-testi-img-wrap:first-child{border-radius:0 0 0 16px;}
-#glowny .glowny-testi-img-wrap:last-child{border-radius:0 0 16px 0;}
-#glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}
+#glowny .glowny-testi-img-wrap:first-child{border-radius:0 0 0 14px;}
+#glowny .glowny-testi-img-wrap:last-child{border-radius:0 0 14px 0;}
+/* UPDATED: object-fit:cover for 1:1 crop/zoom */
+#glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;display:block;}
 #glowny .glowny-testi-img-tag{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.95);border-radius:100px;font-size:9px;font-weight:800;padding:3px 9px;color:#1c1b18;letter-spacing:.3px;text-transform:uppercase;}
 @media(max-width:680px){#glowny .glowny-testi-grid{columns:1;}}
 @media(min-width:681px) and (max-width:960px){#glowny .glowny-testi-grid{columns:2;}}
@@ -222,7 +248,7 @@ let selId = null;
 let seq = 0;
 let hist = [], histIdx = -1;
 const HMAX = 60;
-let exportTab = 'html'; // 'html' | 'css'
+let exportTab = 'html';
 
 const LBL = { text: 'Título + Descrição', faq: 'FAQ', testi: 'Depoimentos' };
 const ICO = { text: '📝', faq: '❓', testi: '💬' };
@@ -243,9 +269,9 @@ const DEFS = {
   },
   testi: {
     items: [
-      { name: 'Priscilla Lima', time: '5 dias de tratamento', stars: 5, text: '"Resultado incrível! O cabelo ficou muito mais forte e brilhoso."', avatarUrl: '', beforeUrl: '', afterUrl: '' },
-      { name: 'Camila Torres', time: '2 semanas de uso', stars: 5, text: '"Meu cabelo estava quebrando muito e depois de 2 semanas já vi uma diferença enorme."', avatarUrl: '', beforeUrl: '', afterUrl: '' },
-      { name: 'Fernanda Silva', time: '1 mês de tratamento', stars: 5, text: '"Já virou parte da minha rotina diária. Nunca mais fico sem! 💕"', avatarUrl: '', beforeUrl: '', afterUrl: '' }
+      { name: 'Priscilla Lima', time: '5 dias de tratamento', text: '"Resultado incrível! O cabelo ficou muito mais forte e brilhoso."', avatarUrl: '', beforeUrl: '', afterUrl: '' },
+      { name: 'Camila Torres', time: '2 semanas de uso', text: '"Meu cabelo estava quebrando muito e depois de 2 semanas já vi uma diferença enorme."', avatarUrl: '', beforeUrl: '', afterUrl: '' },
+      { name: 'Fernanda Silva', time: '1 mês de tratamento', text: '"Já virou parte da minha rotina diária. Nunca mais fico sem! 💕"', avatarUrl: '', beforeUrl: '', afterUrl: '' }
     ],
     paddingTop: 52, paddingBottom: 52
   }
@@ -322,7 +348,7 @@ function addItem(id, type) {
   const b = blocks.find(x => x.id === id);
   if (!b) return;
   if (type === 'faq') b.data.items.push({ q: 'Nova pergunta', a: 'Resposta aqui.' });
-  if (type === 'testi') b.data.items.push({ name: 'Nome da cliente', time: 'X dias de uso', stars: 5, text: '"Depoimento aqui."', avatarUrl: '', beforeUrl: '', afterUrl: '' });
+  if (type === 'testi') b.data.items.push({ name: 'Nome da cliente', time: 'X dias de uso', text: '"Depoimento aqui."', avatarUrl: '', beforeUrl: '', afterUrl: '' });
   repaint(); renderProps();
 }
 function removeItem(id, type, i) {
@@ -436,7 +462,6 @@ function blockHTML(b) {
               </div>
             </div>
             <div class="glowny-testi-body">
-              ${it.stars ? `<div class="glowny-testi-stars">${'★'.repeat(Math.min(5, it.stars||0))}</div>` : ''}
               <div class="glowny-testi-text">${esc(it.text)}</div>
             </div>
             ${(it.beforeUrl||it.afterUrl) ? `<div class="glowny-testi-before-after">
@@ -464,7 +489,17 @@ function renderProps() {
 
   panel.querySelectorAll('[data-path]').forEach(el => {
     const isNum = el.dataset.num === '1';
-    el.addEventListener('input', () => setVal(el.dataset.bid, el.dataset.path, isNum ? (parseFloat(el.value)||0) : el.value));
+    const isRange = el.tagName === 'INPUT' && el.type === 'range';
+    if (isRange) {
+      // Update the displayed value label
+      const valLabel = panel.querySelector(`[data-range-label="${el.dataset.path}-${el.dataset.bid}"]`);
+      el.addEventListener('input', () => {
+        if (valLabel) valLabel.textContent = el.value;
+        setVal(el.dataset.bid, el.dataset.path, parseFloat(el.value)||0);
+      });
+    } else {
+      el.addEventListener('input', () => setVal(el.dataset.bid, el.dataset.path, isNum ? (parseFloat(el.value)||0) : el.value));
+    }
   });
   panel.querySelectorAll('[data-move-item]').forEach(btn => {
     btn.addEventListener('click', () => moveItem(btn.dataset.bid, parseInt(btn.dataset.idx), parseInt(btn.dataset.dir)));
@@ -490,13 +525,26 @@ function buildProps(b) {
     `<div class="field"><label class="label">${label}</label>
      <textarea class="ta" data-path="${path}" data-bid="${id}">${String(val??'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea></div>`;
 
+  // Slider field instead of number input
+  const sliderField = (label, path, val, min, max, step=1) => {
+    const v = val ?? Math.round((min+max)/2);
+    return `<div class="slider-field">
+      <label class="label">${label}</label>
+      <div class="slider-wrap">
+        <input type="range" min="${min}" max="${max}" step="${step}" value="${v}"
+          data-path="${path}" data-bid="${id}" data-num="1"/>
+        <span class="slider-val" data-range-label="${path}-${id}">${v}</span>
+      </div>
+    </div>`;
+  };
+
   const spacing = (showGap=false) => `
     <div class="sep"></div>
     <div class="pr-group-lbl">Espaçamento</div>
-    <div class="field-row">
-      ${fi('Padding top', 'paddingTop', d.paddingTop??52, true, 'inp-sm')}
-      ${fi('Padding bottom', 'paddingBottom', d.paddingBottom??52, true, 'inp-sm')}
-      ${showGap ? fi('Gap', 'gap', d.gap??18, true, 'inp-sm') : '<div></div>'}
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${sliderField('Padding top', 'paddingTop', d.paddingTop??52, 0, 120)}
+      ${sliderField('Padding bottom', 'paddingBottom', d.paddingBottom??52, 0, 120)}
+      ${showGap ? sliderField('Gap', 'gap', d.gap??18, 0, 80) : ''}
     </div>`;
 
   let h = `<div class="pr-head">
@@ -540,7 +588,6 @@ function buildProps(b) {
         </div>
         ${fi('Nome', `items.${i}.name`, it.name)}
         ${fi('Tempo de uso', `items.${i}.time`, it.time)}
-        ${fi('Estrelas (1–5)', `items.${i}.stars`, it.stars, true)}
         ${ta('Depoimento', `items.${i}.text`, it.text)}
         ${fi('URL avatar', `items.${i}.avatarUrl`, it.avatarUrl)}
         ${fi('URL foto Antes', `items.${i}.beforeUrl`, it.beforeUrl)}
@@ -580,16 +627,16 @@ function buildExportCSS() {
 #glowny .glowny-testi-top{display:flex;align-items:center;gap:10px;padding:14px 14px 10px;}
 #glowny .glowny-testi-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#ede9e3;display:flex;align-items:center;justify-content:center;font-size:20px;}
 #glowny .glowny-testi-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-#glowny .glowny-testi-name{font-size:13px;font-weight:800;color:#1c1b18;line-height:1.2;}
-#glowny .glowny-testi-time{font-size:11px;font-weight:600;color:#e8327a;margin-top:2px;}
+#glowny .glowny-testi-name{font-size:12px;font-weight:800;color:#343D46;line-height:1.2;}
+#glowny .glowny-testi-time{font-size:16px;font-weight:600;color:#343D46;margin-top:2px;}
 #glowny .glowny-testi-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
-#glowny .glowny-testi-stars{color:#f59e0b;font-size:13px;letter-spacing:2px;}
+#glowny .glowny-testi-stars{display:none;}
 #glowny .glowny-testi-text{font-size:13px;line-height:1.75;color:#3a3632;}
-#glowny .glowny-testi-before-after{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+#glowny .glowny-testi-before-after{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 #glowny .glowny-testi-img-wrap{position:relative;overflow:hidden;}
-#glowny .glowny-testi-img-wrap:first-child{border-radius:0 0 0 16px;}
-#glowny .glowny-testi-img-wrap:last-child{border-radius:0 0 16px 0;}
-#glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}
+#glowny .glowny-testi-img-wrap:first-child{border-radius:0 0 0 14px;}
+#glowny .glowny-testi-img-wrap:last-child{border-radius:0 0 14px 0;}
+#glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;display:block;}
 #glowny .glowny-testi-img-tag{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.95);border-radius:100px;font-size:9px;font-weight:800;padding:3px 9px;color:#1c1b18;letter-spacing:.3px;text-transform:uppercase;}
 @media(max-width:680px){#glowny .glowny-testi-grid{columns:1;}}
 @media(min-width:681px) and (max-width:960px){#glowny .glowny-testi-grid{columns:2;}}`;
