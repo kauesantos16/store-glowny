@@ -78,6 +78,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .inp-sm{padding:6px 9px;font-size:12px;}
 .ta{resize:vertical;min-height:68px;line-height:1.55;}
 
+/* Toggle switch */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;}
+.toggle-lbl{font-size:12px;font-weight:600;color:var(--text);}
+.toggle-switch{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{display:block;width:40px;height:22px;background:var(--border);border-radius:100px;cursor:pointer;transition:background .2s;}
+.toggle-switch input:checked + .toggle-track{background:var(--pink);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.toggle-switch input:checked ~ .toggle-thumb{transform:translateX(18px);}
+
 /* Slider input for spacing */
 .slider-field{display:flex;flex-direction:column;gap:5px;}
 .slider-wrap{display:flex;align-items:center;gap:8px;}
@@ -108,6 +118,9 @@ input[type=range]:hover{background:var(--pink-bd);}
 .add-btn{padding:8px;border:1.5px dashed var(--border);border-radius:9px;background:transparent;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;text-align:center;width:100%;}
 .add-btn:hover{border-color:var(--pink);color:var(--pink);background:var(--pink-soft);}
 
+/* Block reorder arrows in canvas toolbar */
+.tb-btn-up,.tb-btn-dn{font-size:11px;}
+
 /* EXPORT MODAL */
 .overlay{position:fixed;inset:0;background:rgba(28,27,24,.55);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
 .overlay.open{display:flex;}
@@ -122,13 +135,13 @@ input[type=range]:hover{background:var(--pink-bd);}
 .code-block{background:#1c1b18;color:#d4d0c8;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.7;padding:18px;border-radius:12px;white-space:pre-wrap;word-break:break-all;max-height:480px;overflow-y:auto;}
 
 /* GLOWNY EXPORTED STYLES (also used in canvas preview) */
-#glowny{font-family:'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1c1b18;}
+#glowny{-webkit-font-smoothing:antialiased;color:inherit;}
 #glowny *{box-sizing:border-box;}
 #glowny p,#glowny h1,#glowny h2,#glowny h3,#glowny ul,#glowny ol,#glowny li{margin:0;padding:0;list-style:none;}
 #glowny img{max-width:100%;display:block;}
 /* text */
 #glowny .glowny-text{background:#fff;}
-#glowny .glowny-text-title{font-family:'DM Serif Display','Georgia',serif;font-size:clamp(26px,4vw,36px);line-height:1.15;letter-spacing:-.3px;color:#1c1b18;margin-bottom:18px;}
+#glowny .glowny-text-title{font-family:'Rubik',sans-serif;font-size:clamp(26px,4vw,36px);line-height:1.15;letter-spacing:-.3px;color:#1c1b18;margin-bottom:18px;}
 #glowny .glowny-text-body{font-size:15px;line-height:1.9;color:#5a5752;max-width:680px;white-space:pre-line;}
 /* faq */
 #glowny .glowny-faq{background:#fff;}
@@ -139,30 +152,26 @@ input[type=range]:hover{background:var(--pink-bd);}
 #glowny .glowny-faq-item.open .glowny-faq-q{color:#e8327a;}
 #glowny .glowny-faq-icon{width:28px;height:28px;border-radius:50%;background:#f4f0eb;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;color:#8a8880;transition:transform .25s,background .2s,color .2s;line-height:1;}
 #glowny .glowny-faq-item.open .glowny-faq-icon{transform:rotate(45deg);background:#fce8f3;color:#e8327a;}
-#glowny .glowny-faq-a{font-size:14px;line-height:1.8;color:#7a7672;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s;}
-#glowny .glowny-faq-item.open .glowny-faq-a{max-height:600px;padding:0 20px 18px;}
-/* testi */
+#glowny .glowny-faq-a{font-size:14px;line-height:1.8;color:#7a7672;display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease;}
+#glowny .glowny-faq-a-inner{overflow:hidden;padding:0 20px;}
+#glowny .glowny-faq-item.open .glowny-faq-a{grid-template-rows:1fr;}
+#glowny .glowny-faq-item.open .glowny-faq-a-inner{padding:0 20px 18px;}
 #glowny .glowny-testi{background:#fff;}
 #glowny .glowny-testi-grid{columns:3;column-gap:16px;}
 #glowny .glowny-testi-card{break-inside:avoid;margin-bottom:16px;background:#fff;border:1.5px solid #ede9e3;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;}
 #glowny .glowny-testi-top{display:flex;align-items:center;gap:10px;padding:14px 14px 10px;}
 #glowny .glowny-testi-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#ede9e3;display:flex;align-items:center;justify-content:center;font-size:20px;}
 #glowny .glowny-testi-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-/* UPDATED: name color #343D46, 12px */
 #glowny .glowny-testi-name{font-size:12px;font-weight:800;color:#343D46;line-height:1.2;}
-/* UPDATED: time color #343D46, 16px */
 #glowny .glowny-testi-time{font-size:16px;font-weight:600;color:#343D46;margin-top:2px;}
 #glowny .glowny-testi-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
-/* REMOVED: stars styles kept but stars won't be rendered */
 #glowny .glowny-testi-stars{display:none;}
 #glowny .glowny-testi-text{font-size:13px;line-height:1.75;color:#3a3632;}
-/* UPDATED: gap of 4px between before/after images */
 #glowny .glowny-testi-before-after{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 #glowny .glowny-testi-img-wrap{position:relative;overflow:hidden;}
 #glowny .glowny-testi-img-wrap:first-child{border-radius:0 0 0 14px;}
 #glowny .glowny-testi-img-wrap:last-child{border-radius:0 0 14px 0;}
-/* UPDATED: object-fit:cover for 1:1 crop/zoom */
-#glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;display:block;}
+#glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;display:block;height:100%;}
 #glowny .glowny-testi-img-tag{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.95);border-radius:100px;font-size:9px;font-weight:800;padding:3px 9px;color:#1c1b18;letter-spacing:.3px;text-transform:uppercase;}
 @media(max-width:680px){#glowny .glowny-testi-grid{columns:1;}}
 @media(min-width:681px) and (max-width:960px){#glowny .glowny-testi-grid{columns:2;}}
@@ -257,6 +266,7 @@ const DEFS = {
   text: {
     title: 'Título do produto',
     body: 'Descreva aqui os benefícios, diferenciais e detalhes do seu produto.',
+    showBody: true,
     paddingTop: 52, paddingBottom: 52, gap: 18
   },
   faq: {
@@ -373,13 +383,34 @@ function repaint() {
   empty.style.display = 'none';
 
   const fragment = document.createDocumentFragment();
-  blocks.forEach(b => {
+  blocks.forEach((b, idx) => {
     const wrap = document.createElement('div');
     wrap.className = 'cv-block' + (b.id === selId ? ' sel' : '');
     wrap.dataset.id = b.id;
 
     const toolbar = document.createElement('div');
     toolbar.className = 'cv-toolbar';
+
+    // Move up button
+    const btnUp = document.createElement('button');
+    btnUp.className = 'tb-btn tb-btn-up';
+    btnUp.title = 'Mover para cima';
+    btnUp.textContent = '↑';
+    btnUp.dataset.action = 'up';
+    btnUp.dataset.id = b.id;
+    if (idx === 0) btnUp.style.opacity = '0.3';
+    toolbar.appendChild(btnUp);
+
+    // Move down button
+    const btnDn = document.createElement('button');
+    btnDn.className = 'tb-btn tb-btn-dn';
+    btnDn.title = 'Mover para baixo';
+    btnDn.textContent = '↓';
+    btnDn.dataset.action = 'dn';
+    btnDn.dataset.id = b.id;
+    if (idx === blocks.length - 1) btnDn.style.opacity = '0.3';
+    toolbar.appendChild(btnDn);
+
     const btnDel = document.createElement('button');
     btnDel.className = 'tb-btn tb-del';
     btnDel.title = 'Remover seção';
@@ -387,6 +418,7 @@ function repaint() {
     btnDel.dataset.action = 'del';
     btnDel.dataset.id = b.id;
     toolbar.appendChild(btnDel);
+
     wrap.appendChild(toolbar);
 
     const inner = document.createElement('div');
@@ -433,24 +465,25 @@ function blockHTML(b) {
 
   if (b.type === 'text') {
     const gap = d.gap ?? 18;
-    return `<div class="glowny-text" style="padding:${pt}px 36px ${pb}px;">
-      <div class="glowny-text-title" style="margin-bottom:${gap}px;">${esc(d.title)}</div>
-      <div class="glowny-text-body">${esc(d.body)}</div>
+    const showBody = d.showBody !== false;
+    return `<div class="glowny-text" style="padding:${pt}px 0 ${pb}px;">
+      <h2 class="glowny-text-title" style="margin-bottom:${gap}px;">${esc(d.title)}</h2>
+      ${showBody ? `<div class="glowny-text-body">${esc(d.body)}</div>` : ''}
     </div>`;
   }
   if (b.type === 'faq') {
-    return `<div class="glowny-faq" style="padding:${pt}px 36px ${pb}px;">
+    return `<div class="glowny-faq" style="padding:${pt}px 0 ${pb}px;">
       <div class="glowny-faq-list">
         ${d.items.map(it => `
           <div class="glowny-faq-item">
             <div class="glowny-faq-q">${esc(it.q)}<div class="glowny-faq-icon">+</div></div>
-            <div class="glowny-faq-a">${esc(it.a)}</div>
+            <div class="glowny-faq-a"><div class="glowny-faq-a-inner">${esc(it.a)}</div></div>
           </div>`).join('')}
       </div>
     </div>`;
   }
   if (b.type === 'testi') {
-    return `<div class="glowny-testi" style="padding:${pt}px 36px ${pb}px;">
+    return `<div class="glowny-testi" style="padding:${pt}px 0 ${pb}px;">
       <div class="glowny-testi-grid">
         ${d.items.map(it => `
           <div class="glowny-testi-card">
@@ -490,13 +523,15 @@ function renderProps() {
   panel.querySelectorAll('[data-path]').forEach(el => {
     const isNum = el.dataset.num === '1';
     const isRange = el.tagName === 'INPUT' && el.type === 'range';
+    const isCheckbox = el.tagName === 'INPUT' && el.type === 'checkbox';
     if (isRange) {
-      // Update the displayed value label
       const valLabel = panel.querySelector(`[data-range-label="${el.dataset.path}-${el.dataset.bid}"]`);
       el.addEventListener('input', () => {
         if (valLabel) valLabel.textContent = el.value;
         setVal(el.dataset.bid, el.dataset.path, parseFloat(el.value)||0);
       });
+    } else if (isCheckbox) {
+      el.addEventListener('change', () => setVal(el.dataset.bid, el.dataset.path, el.checked));
     } else {
       el.addEventListener('input', () => setVal(el.dataset.bid, el.dataset.path, isNum ? (parseFloat(el.value)||0) : el.value));
     }
@@ -525,7 +560,6 @@ function buildProps(b) {
     `<div class="field"><label class="label">${label}</label>
      <textarea class="ta" data-path="${path}" data-bid="${id}">${String(val??'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea></div>`;
 
-  // Slider field instead of number input
   const sliderField = (label, path, val, min, max, step=1) => {
     const v = val ?? Math.round((min+max)/2);
     return `<div class="slider-field">
@@ -538,13 +572,23 @@ function buildProps(b) {
     </div>`;
   };
 
+  const toggleField = (label, path, val) =>
+    `<div class="toggle-row">
+      <span class="toggle-lbl">${label}</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-path="${path}" data-bid="${id}" ${val ? 'checked' : ''}/>
+        <span class="toggle-track"></span>
+        <span class="toggle-thumb"></span>
+      </label>
+    </div>`;
+
   const spacing = (showGap=false) => `
     <div class="sep"></div>
     <div class="pr-group-lbl">Espaçamento</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${sliderField('Padding top', 'paddingTop', d.paddingTop??52, 0, 120)}
       ${sliderField('Padding bottom', 'paddingBottom', d.paddingBottom??52, 0, 120)}
-      ${showGap ? sliderField('Gap', 'gap', d.gap??18, 0, 80) : ''}
+      ${showGap ? sliderField('Gap título/descrição', 'gap', d.gap??18, 0, 80) : ''}
     </div>`;
 
   let h = `<div class="pr-head">
@@ -554,7 +598,10 @@ function buildProps(b) {
 
   if (b.type === 'text') {
     h += fi('Título', 'title', d.title);
-    h += ta('Descrição', 'body', d.body);
+    h += toggleField('Exibir descrição', 'showBody', d.showBody !== false);
+    if (d.showBody !== false) {
+      h += ta('Descrição', 'body', d.body);
+    }
     h += spacing(true);
   }
 
@@ -604,14 +651,13 @@ function buildProps(b) {
 
 // ─── EXPORT ──────────────────────────────────────────────────────────────────
 function buildExportCSS() {
-  return `#glowny{font-family:'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#1c1b18;}
+  return `/* ── Glowny Builder — início ── */
+#glowny{-webkit-font-smoothing:antialiased;}
 #glowny *{box-sizing:border-box;}
 #glowny p,#glowny h1,#glowny h2,#glowny h3,#glowny ul,#glowny ol,#glowny li{margin:0;padding:0;list-style:none;}
 #glowny img{max-width:100%;display:block;}
-#glowny .glowny-text{background:#fff;}
-#glowny .glowny-text-title{font-family:'DM Serif Display','Georgia',serif;font-size:clamp(26px,4vw,36px);line-height:1.15;letter-spacing:-.3px;color:#1c1b18;}
+#glowny .glowny-text-title{font-family:'Rubik',sans-serif;font-size:clamp(26px,4vw,36px);line-height:1.15;letter-spacing:-.3px;color:#1c1b18;}
 #glowny .glowny-text-body{font-size:15px;line-height:1.9;color:#5a5752;max-width:680px;white-space:pre-line;}
-#glowny .glowny-faq{background:#fff;}
 #glowny .glowny-faq-list{display:flex;flex-direction:column;gap:10px;}
 #glowny .glowny-faq-item{background:#fff;border:1.5px solid #ede9e3;border-radius:14px;overflow:hidden;transition:border-color .2s;}
 #glowny .glowny-faq-item.open{border-color:#e8327a;}
@@ -619,9 +665,10 @@ function buildExportCSS() {
 #glowny .glowny-faq-item.open .glowny-faq-q{color:#e8327a;}
 #glowny .glowny-faq-icon{width:28px;height:28px;border-radius:50%;background:#f4f0eb;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;color:#8a8880;transition:transform .25s,background .2s,color .2s;line-height:1;}
 #glowny .glowny-faq-item.open .glowny-faq-icon{transform:rotate(45deg);background:#fce8f3;color:#e8327a;}
-#glowny .glowny-faq-a{font-size:14px;line-height:1.8;color:#7a7672;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s;}
-#glowny .glowny-faq-item.open .glowny-faq-a{max-height:600px;padding:0 20px 18px;}
-#glowny .glowny-testi{background:#fff;}
+#glowny .glowny-faq-a{font-size:14px;line-height:1.8;color:#7a7672;display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease;}
+#glowny .glowny-faq-a-inner{overflow:hidden;padding:0 20px;}
+#glowny .glowny-faq-item.open .glowny-faq-a{grid-template-rows:1fr;}
+#glowny .glowny-faq-item.open .glowny-faq-a-inner{padding:0 20px 18px;}
 #glowny .glowny-testi-grid{columns:3;column-gap:16px;}
 #glowny .glowny-testi-card{break-inside:avoid;margin-bottom:16px;background:#fff;border:1.5px solid #ede9e3;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;}
 #glowny .glowny-testi-top{display:flex;align-items:center;gap:10px;padding:14px 14px 10px;}
@@ -639,7 +686,8 @@ function buildExportCSS() {
 #glowny .glowny-testi-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;display:block;}
 #glowny .glowny-testi-img-tag{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.95);border-radius:100px;font-size:9px;font-weight:800;padding:3px 9px;color:#1c1b18;letter-spacing:.3px;text-transform:uppercase;}
 @media(max-width:680px){#glowny .glowny-testi-grid{columns:1;}}
-@media(min-width:681px) and (max-width:960px){#glowny .glowny-testi-grid{columns:2;}}`;
+@media(min-width:681px) and (max-width:960px){#glowny .glowny-testi-grid{columns:2;}}
+/* ── Glowny Builder — fim ── */`;
 }
 
 function buildExportHTML() {
@@ -648,7 +696,7 @@ function buildExportHTML() {
   const script = hasFaq
     ? `\n<script>document.querySelectorAll('#glowny .glowny-faq-q').forEach(function(q){q.addEventListener('click',function(){q.closest('.glowny-faq-item').classList.toggle('open');});});<\/script>`
     : '';
-  return body + script;
+  return `<!-- Glowny Builder — início -->\n` + body + script + `\n<!-- Glowny Builder — fim -->`;
 }
 
 function refreshExportModal() {
@@ -690,7 +738,11 @@ document.getElementById('canvas').addEventListener('click', e => {
   const btn = e.target.closest('.tb-btn');
   if (btn) {
     e.stopPropagation();
-    if (btn.dataset.action === 'del') removeBlock(btn.dataset.id);
+    const action = btn.dataset.action;
+    const id = btn.dataset.id;
+    if (action === 'del') removeBlock(id);
+    if (action === 'up') { selId = id; moveBlock(id, -1); }
+    if (action === 'dn') { selId = id; moveBlock(id, 1); }
     return;
   }
   const block = e.target.closest('.cv-block');
@@ -744,6 +796,7 @@ document.addEventListener('keydown', e => {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 loadSaved();
+snap();
 repaint();
 renderProps();
 </script>
